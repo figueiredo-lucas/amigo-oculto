@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"
+      integrity="sha256-/H4YS+7aYb9kJ5OKhFYPUjSJdrtV6AeyJOtTkw6X72o="
+      crossorigin="anonymous"
+    ></script>
+
+    <title>Amigos ocultos e Matheus</title>
+    <style>
+      body {
+        font-family: "Helvetica Neue", Helvetica;
+      }
+      h1 {
+        text-align: center;
+      }
+      ul {
+        list-style: none;
+      }
+      li {
+        padding: 0.5rem;
+        font-size: 1.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Amigos ocultos e Matheus</h1>
+    <ul id="name-list"></ul>
+    <div id="result" style="display: none">
+      <input
+        type="text"
+        placeholder="Digita teu nome aqui ó"
+        id="result-text"
+      />
+      <button id="result-button">Quem você tirou?</button>
+      <div id="show-result"></div>
+    </div>
+    <script>
+      const nameList = document.getElementById("name-list");
+      const resultDiv = document.getElementById("result");
+      const resultButton = document.getElementById("result-button");
+      const resultText = document.getElementById("result-text");
+      const showResult = document.getElementById("show-result");
+      const names = [
+        "Lucas",
+        "Rayssa",
+        "Matheus",
+        "Thainara",
+        "Eduardo",
+        "Theo",
+        "Olívia",
+      ];
+      let partialArray = [...names];
+
+      function randomIntFromInterval(min, max) {
+        // min and max included
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      }
+      if (window.location.hash.startsWith("#code")) {
+        resultDiv.style.display = "";
+        resultButton.addEventListener("click", () => {
+          if (resultText.value.length > 0) {
+            const decrypted = CryptoJS.AES.decrypt(
+              window.location.hash.replace("#code=", ""),
+              resultText.value.toLowerCase()
+            ).toString(CryptoJS.enc.Utf8);
+            console.log(decrypted);
+            showResult.textContent = decrypted;
+          }
+        });
+        console.log("aeae");
+      } else {
+        const result = names.map((n, i) => {
+          const max = names.length - i;
+          if (max === 1) return { name: n, result: partialArray[0] };
+          let idx = -1;
+          do {
+            idx = randomIntFromInterval(0, max - 1);
+            console.log(idx);
+          } while (n === partialArray[idx]);
+          return { name: n, result: partialArray.splice(idx, 1)[0] };
+        });
+
+        result.forEach((r) => {
+          r.encrpyted = CryptoJS.AES.encrypt(
+            r.result,
+            r.name.toLowerCase()
+          ).toString();
+          const li = document.createElement("li");
+          li.innerHTML = `<span>${r.name}: </span><a target="_blank" href="${window.location.href}#code=${r.encrpyted}">${window.location.href}#code=${r.encrpyted}</a>`;
+          nameList.appendChild(li);
+        });
+      }
+    </script>
+  </body>
+</html>
